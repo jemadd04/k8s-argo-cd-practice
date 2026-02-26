@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: wave-demo
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/jemadd04/k8s-argo-cd-practice.git
+    targetRevision: HEAD
+    path: apps/wave-demo
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: wave-demo
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
