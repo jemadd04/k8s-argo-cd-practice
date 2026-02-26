@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: presync-backup
+  namespace: wave-demo
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+spec:
+  template:
+    spec:
+      containers:
+      - name: backup
+        image: busybox:1.28
+        command:
+        - sh
+        - -c
+        - |
+          echo "PreSync Hook: Starting pre-deployment backup..."
+          sleep 3
+          echo "Backing up database..."
+          sleep 3
+          echo "Backup complete! Safe to proceed with deployment."
+      restartPolicy: Never
+  backoffLimit: 1

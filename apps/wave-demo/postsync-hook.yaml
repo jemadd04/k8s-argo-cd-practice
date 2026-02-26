@@ -1,0 +1,28 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: postsync-smoketest
+  namespace: wave-demo
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+spec:
+  template:
+    spec:
+      containers:
+      - name: smoketest
+        image: busybox:1.28
+        command:
+        - sh
+        - -c
+        - |
+          echo "PostSync Hook: Starting smoke tests..."
+          sleep 2
+          echo "Testing database connectivity..."
+          wget -q --spider http://database-svc.wave-demo.svc.cluster.local && echo "Database: OK" || echo "Database: FAILED"
+          sleep 2
+          echo "Testing web app..."
+          wget -q --spider http://web-app-svc.wave-demo.svc.cluster.local && echo "Web App: OK" || echo "Web App: FAILED"
+          echo "Smoke tests complete!"
+      restartPolicy: Never
+  backoffLimit: 1

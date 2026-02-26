@@ -1,0 +1,36 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-migration
+  namespace: wave-demo
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  template:
+    spec:
+      containers:
+      - name: migration
+        image: busybox:1.28
+        command:
+        - sh
+        - -c
+        - |
+          echo "Starting database migration..."
+          echo "Connecting to database at $DB_HOST:$DB_PORT"
+          sleep 5
+          echo "Running migrations..."
+          sleep 3
+          echo "Migrations complete!"
+        env:
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: DB_HOST
+        - name: DB_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: DB_PORT
+      restartPolicy: Never
+  backoffLimit: 2
